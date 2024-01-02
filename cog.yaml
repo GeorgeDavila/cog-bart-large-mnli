@@ -12,7 +12,6 @@ build:
     - "matplotlib"
     - "tiktoken"
     - "einops"
-    - "transformers_stream_generator"
 
 # predict.py defines how predictions are run on your model
 predict: "predict.py:Predictor"
