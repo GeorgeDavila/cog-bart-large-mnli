@@ -1,0 +1,53 @@
+# Prediction interface for Cog ⚙️
+# https://github.com/replicate/cog/blob/main/docs/python.md
+
+from cog import BasePredictor, Input, Path
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers.generation import GenerationConfig
+from transformers import BartForConditionalGeneration, BartTokenizer
+from transformers import pipeline
+
+MODEL_NAME = "facebook/bart-large-mnli"
+MODEL_CACHE = "model-cache"
+TOKEN_CACHE = "token-cache"
+
+class Predictor(BasePredictor):
+    def setup(self) -> None:
+        """Load the model into memory to make running multiple predictions efficient"""
+        self.tokenizer = BartTokenizer.from_pretrained(
+            MODEL_NAME,
+            trust_remote_code=True,
+            cache_dir=TOKEN_CACHE
+        )
+        model = BartForConditionalGeneration.from_pretrained(
+            MODEL_NAME,
+            trust_remote_code=True,
+            cache_dir=MODEL_CACHE
+        )
+        model.generation_config = GenerationConfig.from_pretrained(
+            MODEL_NAME,
+            trust_remote_code=True,
+            cache_dir=MODEL_CACHE
+        )
+        self.model = model.to("cuda")
+
+    def predict(
+        self,
+        text2classify: Path = Input(description="Add salt to boiling water to prevent pasta from sticking together"),
+        labels: str = Input(description="Possible class names (comma-separated)", default="Cooking Instructions, Question about Astronomy"),
+    ) -> str:
+        """Run a single prediction on the model"""
+
+        classifier = pipeline("zero-shot-classification", model=MODEL_NAME)
+
+        def zeroShotClassification(text_input, candidate_labels):
+            labels = [label.strip(' ') for label in candidate_labels.split(',')]
+            output = {}
+            prediction = classifier(text_input, labels)
+            for i in range(len(prediction['labels'])):
+                output[prediction['labels'][i]] = prediction['scores'][i]
+            return output
+
+        response = zeroShotClassification(text_input=text2classify, candidate_labels=labels)
+        return response
