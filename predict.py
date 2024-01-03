@@ -34,8 +34,8 @@ class Predictor(BasePredictor):
 
     def predict(
         self,
-        text2classify: Path = Input(description="Add salt to boiling water to prevent pasta from sticking together"),
-        labels: str = Input(description="Possible class names (comma-separated)", default="Cooking Instructions, Question about Astronomy"),
+        text2classify: str = Input(description="Text you want to classify. ", default="Add salt to boiling water to prevent pasta from sticking together"),
+        labels: str = Input(description="Possible class names (comma-separated). This is a zero-shot classifier so you can try any label you'd like. The model will output the top label.", default="Cooking Instructions, Question about Astronomy"),
     ) -> str:
         """Run a single prediction on the model"""
 
