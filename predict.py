@@ -29,7 +29,7 @@ class Predictor(BasePredictor):
     def predict(
         self,
         text2classify: str = Input(description="Text you want to classify. ", default="Add salt to boiling water to prevent pasta from sticking together"),
-        labels: str = Input(description="Possible class names (comma-separated). This is a zero-shot classifier so you can try any label you'd like. The model will output the top label.", default="Cooking Instructions, Question about Astronomy"),
+        labels: str = Input(description="Possible class names (comma-separated). This is a zero-shot classifier so you can try any label you'd like. The model will output the top label under key 'mostLikelyClass'.", default="Cooking Instructions, Question about Astronomy"),
     ) -> str:
         """Run a single prediction on the model"""
 
@@ -43,5 +43,10 @@ class Predictor(BasePredictor):
                 output[prediction['labels'][i]] = prediction['scores'][i]
             return output
 
-        response = zeroShotClassification(text_input=text2classify, candidate_labels=labels)
+        likelihoods = zeroShotClassification(text_input=text2classify, candidate_labels=labels)
+        classesSortedMost2Least = sorted(my_dict, reverse=True)
+        mostLikelyClass = classesSortedMost2Least[0]
+
+        response = {'mostLikelyClass': mostLikelyClass, 'allClasses':likelihoods}
+
         return response
