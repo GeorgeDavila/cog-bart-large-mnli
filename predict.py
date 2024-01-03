@@ -44,8 +44,8 @@ class Predictor(BasePredictor):
             return output
 
         likelihoods = zeroShotClassification(text_input=text2classify, candidate_labels=labels)
-        classesSortedMost2Least = sorted(likelihoods, reverse=True)
-        mostLikelyClass = classesSortedMost2Least[0]
+        classesSortedMost2Least = sorted(likelihoods.items(), key=lambda x:x[1], reverse=True)
+        mostLikelyClass = classesSortedMost2Least[0][0]
 
         response = {'mostLikelyClass': mostLikelyClass, 'allClasses':likelihoods}
 
