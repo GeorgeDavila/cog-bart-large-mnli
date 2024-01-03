@@ -4,8 +4,7 @@
 from cog import BasePredictor, Input, Path
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from transformers.generation import GenerationConfig
-from transformers import BartForConditionalGeneration, BartTokenizer
+from transformers import BartForConditionalGeneration, BartTokenizer, BartConfig
 from transformers import pipeline
 
 MODEL_NAME = "facebook/bart-large-mnli"
@@ -21,11 +20,6 @@ class Predictor(BasePredictor):
             cache_dir=TOKEN_CACHE
         )
         model = BartForConditionalGeneration.from_pretrained(
-            MODEL_NAME,
-            trust_remote_code=True,
-            cache_dir=MODEL_CACHE
-        )
-        model.generation_config = GenerationConfig.from_pretrained(
             MODEL_NAME,
             trust_remote_code=True,
             cache_dir=MODEL_CACHE
